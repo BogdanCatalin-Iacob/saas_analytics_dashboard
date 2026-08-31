@@ -32,7 +32,7 @@ const revenueChart = new Chart(ctx, {
         labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
         datasets: [{
             label: 'MRR Growth ($)',
-            data: [31200, 32500, 34100, 35600, 36800, 38200, 39100, 40400, 41200, 41900, 42400, 0], // Replaced empty array with 12 item array template placeholder structure
+            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // Replaced empty array with 12 item array template placeholder structure
             borderColor: '#3b82f6',
             backgroundColor: 'rgba(59, 130, 246, 0.1)',
             borderWidth: 3,
@@ -51,13 +51,37 @@ const revenueChart = new Chart(ctx, {
     }
 });
 
+// Tab Switching Navigation Logic System
+const btnDashboard = document.getElementById('nav-dashboard');
+const btnBilling = document.getElementById('nav-billing');
+const secDashboard = document.getElementById('section-dashboard');
+const secBilling = document.getElementById('section-billing');
+
+btnDashboard.addEventListener('click', () => {
+    // Show Dashboard, Hide Billing
+    secDashboard.classList.remove('hidden');
+    secBilling.classList.add('hidden');
+    // Toggle active link visual themes
+    btnDashboard.className = "w-full flex items-center gap-3 px-4 py-2.5 bg-blue-600/10 text-blue-400 rounded-lg font-medium cursor-pointer text-left transition";
+    btnBilling.className = "w-full flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:bg-gray-800 hover:text-gray-200 rounded-lg font-medium cursor-pointer text-left transition";
+});
+
+btnBilling.addEventListener('click', () => {
+    // Show Billing, Hide Dashboard
+    secBilling.classList.remove('hidden');
+    secDashboard.classList.add('hidden');
+    // Toggle active link visual themes
+    btnBilling.className = "w-full flex items-center gap-3 px-4 py-2.5 bg-blue-600/10 text-blue-400 rounded-lg font-medium cursor-pointer text-left transition";
+    btnDashboard.className = "w-full flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:bg-gray-800 hover:text-gray-200 rounded-lg font-medium cursor-pointer text-left transition";
+});
+
 // Asynchronously pull clean json metric from backend
 async function updateDashboard() {
     try {
         const response = await fetch('/api/metrics');
         const data = await response.json();
 
-        // Target and update inside dom elements
+        // 1. Map Core Dashboard Metrics
         const mrrEl = document.getElementById('mrr-val');
         const usersEl = document.getElementById('users-val');
         const convEl = document.getElementById('conversion-val');
@@ -73,7 +97,59 @@ async function updateDashboard() {
         usersEl.classList.remove('animate-pulse');
         convEl.classList.remove('animate-pulse');
 
-        // Extract numbers and replace the whole 12-month array layout cleanly
+        // 2. Map Billing Tab Specific Metrics
+        const churnEl = document.getElementById('churn-val');
+        const outstandingEl = document.getElementById('outstanding-val');
+        const marginEl = document.getElementById('margin-val');
+
+        if (churnEl) {
+            churnEl.innerText = data.churn;
+            // 1. Assign the text percentage value coming from Python (e.g. "3.42%")
+            churnEl.innerText = data.churn;
+
+            // 2. Parse the string value back into a comparative float number
+            const numericChurn = parseFloat(data.churn.replace('%', ''));
+
+            // 3. Wipe any existing threshold classes to safely re-evaluate
+            churnEl.classList.remove('text-green-400', 'text-red-400');
+
+            // 4. Evaluate against the 5% gold-standard baseline rule
+            if (numericChurn < 5.0) {
+                churnEl.classList.add('text-green-400'); // Safe, healthy threshold state
+            } else {
+                churnEl.classList.add('text-red-400');   // Warning state if attrition climbs
+            }
+        }
+        if (outstandingEl && data.invoices) {
+            // 1. Filter out only the Overdue invoices, pull their amounts, and clean up the string symbols ($ and commas)
+            const totalOverdue = data.invoices
+                .filter(inv => inv.status === 'Overdue')
+                .reduce((sum, inv) => {
+                    const cleanAmount = parseFloat(inv.amount.replace(/[^0-9.]/g, ''));
+                    return sum + cleanAmount;
+                }, 0);
+
+            // 2. Format the mathematical sum back into a clean currency layout (e.g., $11,900.00)
+            outstandingEl.innerText = `$${totalOverdue.toLocaleString('en-US')}`;
+        }
+        if (marginEl) {
+            // 1. Get the raw numeric MRR currently computed from Python
+            const currentMRR = parseInt(data.mrr.replace(/[^0-9]/g, '')) || 42000;
+
+            // 2. Simulate core business costs (e.g., base infrastructure costs + variable customer growth expenses)
+            const baseOperatingCosts = 8500;
+            const marketingCosts = currentMRR * 0.12; // Simulates spending 12% of revenue on ads
+            const totalExpenses = baseOperatingCosts + marketingCosts;
+
+            // 3. Apply the Net Profit Margin calculation formula
+            const calculatedMargin = ((currentMRR - totalExpenses) / currentMRR) * 100;
+
+            // 4. Format and print the output cleanly (e.g., "71.4%")
+            marginEl.innerText = `${calculatedMargin.toFixed(1)}%`;
+        }
+
+
+        // 3. Dynamically Redraw Line and Area Data Tracks
         if (data.timeline) {
             revenueChart.data.datasets[0].data = data.timeline;
             revenueChart.update();
@@ -88,7 +164,7 @@ async function updateDashboard() {
         tierChart.data.datasets[0].data = [starterShare, proShare, enterpriseShare];
         tierChart.update();
 
-        // Clear and rewrite transaction table listings cleanly
+        // 4. Map Live Transactions Feed Listings
         const feed = document.getElementById('transaction-feed');
         feed.innerHTML = '';
         data.transactions.forEach(tx => {
@@ -105,6 +181,40 @@ async function updateDashboard() {
                 </div>
                 `;
         });
+        // 5. NEW: Map Corporate Invoice Ledger Listings Table
+        const invoiceTableBody = document.getElementById('invoice-table-body');
+
+        if (invoiceTableBody && data.invoices) {
+
+            // set the count of overdue invoices
+            const overdueCount = data.invoices.filter(inv => inv.status === 'Overdue').length;
+            const dunningEl = document.getElementById('dunning-count');
+            if (dunningEl) {
+                dunningEl.innerText = overdueCount > 0
+                    ? `⚠️ ${overdueCount} require immediate dunning`
+                    : `✅ All invoices healthy`;
+            }
+
+            // Populate the invoices table
+            invoiceTableBody.innerHTML = '';
+            data.invoices.forEach(inv => {
+                const statusStyle = inv.status === 'Paid'
+                    ? 'bg-green-500/10 text-green-400 border-green-500/20'
+                    : 'bg-red-500/10 text-red-400 border-red-500/20';
+
+                invoiceTableBody.innerHTML += `
+                    <tr class="hover:bg-gray-900/40 text-gray-300 transition">
+                        <td class="p-4 font-mono font-medium text-xs text-gray-400">${inv.id}</td>
+                        <td class="p-4 font-semibold text-white">${inv.client}</td>
+                        <td class="p-4 text-gray-400">${inv.date}</td>
+                        <td class="p-4 font-bold text-gray-100">${inv.amount}</td>
+                        <td class="p-4">
+                            <span class="text-xs font-medium px-2 py-0.5 rounded border ${statusStyle}">${inv.status}</span>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
     } catch (error) {
         console.error('Error connecting with internal SaaS data endpoints: ', error);
     }

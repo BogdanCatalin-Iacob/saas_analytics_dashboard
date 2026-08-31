@@ -25,6 +25,26 @@ def get_metrics():
         39100, 40400, 41200, 41900, 42400, mrr
     ]
 
+    # Live Billing data variables
+    churn = round(random.uniform(4.0, 6.5), 2)
+    outstanding_invoices = random.randint(1200, 4500)
+    profit_margin = random.randint(72, 79)
+
+    # Static ledger simulation matching real financial states
+    invoices = [
+        {"id": "INV-2026-001", "client": "Global Tech Corp",
+         "date": "Aug 28, 2026", "amount": "$4,500.00", "status": "Paid"},
+        {"id": "INV-2026-002", "client": "StripeFlow Ltd",
+         "date": "Aug 25, 2026", "amount": "$1,200.00", "status": "Paid"},
+        {"id": "INV-2026-003", "client": "Alpha Omega AI",
+         "date": "Aug 20, 2026", "amount": "$9,800.00", "status": "Overdue"},
+        {"id": "INV-2026-004", "client": "HypeBeast Digital",
+         "date": "Aug 15, 2026", "amount": "$350.00", "status": "Paid"},
+        {"id": "INV-2026-005", "client": "CloudScale Inc",
+         "date": "Aug 12, 2026", "amount": "$2,100.00", "status": "Overdue"}
+    ]
+    random.shuffle(invoices)  # shuffle to simulate changes on data refreshes
+
     # Mock recent transaction list
     transactions = [
         {'id': '#1042', 'user': 'Acme Corp', 'plan': 'Enterprise',
@@ -44,7 +64,12 @@ def get_metrics():
         'ltv_cac': f'{ltv_cac_ratio}x',
         'growth': f'{round(random.uniform(2.5, 6.8), 1)}%',
         'timeline': historical_timeline,
-        'transactions': transactions
+        'transactions': transactions,
+        # Send Billing variables
+        'churn': f'{churn}%',
+        'outstanding': f'${outstanding_invoices:,}',
+        'margin': f'{profit_margin}%',
+        'invoices': invoices
     })
 
 

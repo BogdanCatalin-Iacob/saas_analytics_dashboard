@@ -21,12 +21,8 @@
                 <span class="text-xl font-bold tracking-wide text-white">SaaS Analytics</span>
             </div>
             <nav class="space-y-2">
-                <a href="#"
-                    class="flex items-center gap-3 px-4 py-2.5 bg-blue-600/10 text-blue-400 rounded-lg font-medium">Dashboard</a>
-                <a href="#"
-                    class="flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:bg-gray-800 hover:text-gray-200 rounded-lg transition">Billing</a>
-                <a href="#"
-                    class="flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:bg-gray-800 hover:text-gray-200 rounded-lg transition">User</a>
+                <button id="nav-dashboard" class="w-full flex items-center gap-3 px-4 py-2.5 bg-blue-600/10 text-blue-400 rounded-lg font-medium cursor-pointer text-left transition">📊 Dashboard</button>
+                <button id="nav-billing" class="w-full flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:bg-gray-800 hover:text-gray-200 rounded-lg font-medium cursor-pointer text-left transition">💳 Billing</button>
             </nav>
         </div>
         <div class="text-xs text-gray-500 border-t border-gray-800 pt-4">v1.0.0 // Flask + JS stack</div>
@@ -34,62 +30,120 @@
 
     <!-- main content -->
     <main class="flex-1 p-6 md:p-10 max-w-7xl mx-auto w-full">
-        <!-- top header -->
-        <header class="flex justify-between items-center mb-8">
-            <div>
-                <h1 class="text-3xl font-bold text-white tracking-tight">Analytics overview</h1>
-                <p class="text-gray-400 text-sm mt-1">Live data polling active.</p>
-            </div>
-            <button id="refresh-btn"
-                class="bg=gray-800 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg border border-gray-700 transition flex items-center gap-2 cursor-pointer">
-                🔄 Sync now
-            </button>
-        </header>
+        <div id="section-dashboard" class="space-y-8">
+            <!-- top header -->
+            <header class="flex justify-between items-center mb-8">
+                <div>
+                    <h1 class="text-3xl font-bold text-white tracking-tight">Analytics overview</h1>
+                    <p class="text-gray-400 text-sm mt-1">Live data polling active.</p>
+                </div>
+                <button id="refresh-btn"
+                    class="bg=gray-800 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg border border-gray-700 transition flex items-center gap-2 cursor-pointer">
+                    🔄 Sync now
+                </button>
+            </header>
 
-        <!-- metric grid cards -->
-        <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-gray-950 p-6 rounded-xl border border-gray-800 shadow-sm">
-                <p class="text-sm font-medium text-gray-400 uppercase tracking-wide">Monthly Recurring Revenue</p>
-                <p id="mrr-val" class="text-3xl font-bold text-white mt-2 animate-pulse">Loading...</p>
-                <span id="growth-val" class="text-xs text-green-400 font-medium mt-1 inline-block">4.2% live growth</span>
-            </div>
-            <div class="bg-gray-950 p-6 rounded-xl border border-gray-800 shadow-sm">
-                <p class="text-sm font-medium text-gray-400 uppercase tracking-wide">Active Customers</p>
-                <p id="users-val" class="text-3xl font-bold text-white mt-2 animate-pulse">Loading...</p>
-                <span class="text-xs text-green-400 font-medium mt-1 inline-block">Live tracking active</span>
-            </div>
-            <div class="bg-gray-950 p-6 rounded-xl border border-gray-800 shadow-sm">
-                <p class="text-sm font-medium text-gray-400 uppercase tracking-wide">LTV to CAC Ratio</p>
-                <p id="conversion-val" class="text-3xl font-bold text-white mt-2 animate-pulse">Loading...</p>
-                <span class="text-xs text-gray-500 font-medium mt-1 inline-block">Healthy Threshold (>3.0)</span>
-            </div>
-        </section>
+            <!-- metric grid cards -->
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-gray-950 p-6 rounded-xl border border-gray-800 shadow-sm">
+                    <p class="text-sm font-medium text-gray-400 uppercase tracking-wide">Monthly Recurring Revenue</p>
+                    <p id="mrr-val" class="text-3xl font-bold text-white mt-2 animate-pulse">Loading...</p>
+                    <span id="growth-val" class="text-xs text-green-400 font-medium mt-1 inline-block">4.2% live
+                        growth</span>
+                </div>
+                <div class="bg-gray-950 p-6 rounded-xl border border-gray-800 shadow-sm">
+                    <p class="text-sm font-medium text-gray-400 uppercase tracking-wide">Active Customers</p>
+                    <p id="users-val" class="text-3xl font-bold text-white mt-2 animate-pulse">Loading...</p>
+                    <span class="text-xs text-green-400 font-medium mt-1 inline-block">Live tracking active</span>
+                </div>
+                <div class="bg-gray-950 p-6 rounded-xl border border-gray-800 shadow-sm">
+                    <p class="text-sm font-medium text-gray-400 uppercase tracking-wide">LTV to CAC Ratio</p>
+                    <p id="conversion-val" class="text-3xl font-bold text-white mt-2 animate-pulse">Loading...</p>
+                    <span class="text-xs text-gray-500 font-medium mt-1 inline-block">Healthy Threshold (>3.0)</span>
+                </div>
+            </section>
 
-        <!-- Charts and Activity grid -->
-        <section class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <!-- Chart.js Container -->
-            <div class="lg:col-span-2 bg-gray-950 p-6 rounded-xl border border-gray-800 shadow-sm">
-                <h3 class="text-lg font-semibold text-white mb-4">Revenue Growth Over Time</h3>
-                <div class="h-64">
-                    <canvas id="revenueChart"></canvas>
+            <!-- Charts and Activity grid -->
+            <section class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <!-- Chart.js Container -->
+                <div class="lg:col-span-2 bg-gray-950 p-6 rounded-xl border border-gray-800 shadow-sm">
+                    <h3 class="text-lg font-semibold text-white mb-4">Revenue Growth Over Time</h3>
+                    <div class="h-64">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
                 </div>
-            </div>
-            
-            <!-- Revenue breakdown doughnut -->
-             <div class="bg-gray-950 p-6 rounded-xl border border-gray-800 shadow-sm">
-                <h3 class="text-lg font-semibold text-white mb-4">Revenue Plan Tier</h3>
-                <div class="h-64 flex items-center justify-center">
-                    <canvas id="tierChart"></canvas>
+
+                <!-- Revenue breakdown doughnut -->
+                <div class="bg-gray-950 p-6 rounded-xl border border-gray-800 shadow-sm">
+                    <h3 class="text-lg font-semibold text-white mb-4">Revenue Plan Tier</h3>
+                    <div class="h-64 flex items-center justify-center">
+                        <canvas id="tierChart"></canvas>
+                    </div>
                 </div>
-             </div>
-            <!-- Real time Event Feed -->
-            <div class="bg-gray-950 p-6 rounded-xl border border-gray-800 shadow-sm flex flex-col">
-                <h3 class="text-lg font-semibold text-white mb-4">Live Transactions</h3>
-                <div id="transaction-feed" class="space-y-3 flex-1 overflow-y-auto">
-                    <!-- inject dynamic updates here -->
+                <!-- Real time Event Feed -->
+                <div class="bg-gray-950 p-6 rounded-xl border border-gray-800 shadow-sm flex flex-col">
+                    <h3 class="text-lg font-semibold text-white mb-4">Live Transactions</h3>
+                    <div id="transaction-feed" class="space-y-3 flex-1 overflow-y-auto">
+                        <!-- inject dynamic updates here -->
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        </div>
+
+        <!-- SECTION B: BILLING TAB (Hidden by default via 'hidden' class) -->
+        <div id="section-billing" class="space-y-8 hidden">
+            <header>
+                <h1 class="text-3xl font-bold text-white tracking-tight">Billing & Invoices</h1>
+                <p class="text-gray-400 text-sm mt-1">Manage platform billing status and failed payments audit trail.
+                </p>
+            </header>
+
+            <!-- Billing Overview Cards -->
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-gray-950 p-6 rounded-xl border border-gray-800 shadow-sm">
+                    <p class="text-sm font-medium text-gray-400 uppercase tracking-wide">Churn Rate</p>
+                    <p id="churn-val" class="text-3xl font-bold mt-2">Loading...</p>
+                    <span class="text-xs text-gray-500 font-medium mt-1 inline-block">Target industry benchmark &lt;
+                        5%</span>
+                </div>
+                <div class="bg-gray-950 p-6 rounded-xl border border-gray-800 shadow-sm">
+                    <p class="text-sm font-medium text-gray-400 uppercase tracking-wide">Outstanding Invoices</p>
+                    <p id="outstanding-val" class="text-3xl font-bold text-yellow-500 mt-2">Loading...</p>
+                    <span id="dunning-count" class="text-xs text-yellow-500/80 font-medium mt-1 inline-block">⚠️ 3 requires immediate
+                        dunning</span>
+                </div>
+                <div class="bg-gray-950 p-6 rounded-xl border border-gray-800 shadow-sm">
+                    <p class="text-sm font-medium text-gray-400 uppercase tracking-wide">Net Profit Margin</p>
+                    <p id="margin-val" class="text-3xl font-bold text-white mt-2">Loading...</p>
+                    <span class="text-xs text-green-400 font-medium mt-1 inline-block">Optimal corporate health
+                        metrics</span>
+                </div>
+            </section>
+
+            <!-- Comprehensive Invoices Ledger Table -->
+            <section class="bg-gray-950 rounded-xl border border-gray-800 shadow-sm overflow-hidden">
+                <div class="p-6 border-b border-gray-800">
+                    <h3 class="text-lg font-semibold text-white">Corporate Invoice Ledger</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr
+                                class="bg-gray-900/50 text-gray-400 border-b border-gray-800 uppercase text-xs font-semibold tracking-wider">
+                                <th class="p-4">Invoice ID</th>
+                                <th class="p-4">Client Enterprise</th>
+                                <th class="p-4">Issued Date</th>
+                                <th class="p-4">Amount Due</th>
+                                <th class="p-4">Status Token</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoice-table-body" class="divide-y divide-gray-800">
+                            <!-- Invoices will inject here dynamically via javascript -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
     </main>
     <script defer src="{{ url_for('static', filename='script.js')}}"></script>
 </body>
